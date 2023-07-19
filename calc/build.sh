@@ -1,0 +1,1 @@
+gcc *.c -o calc -ansi -pedantic -Wall -lm
