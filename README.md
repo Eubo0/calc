@@ -5,6 +5,7 @@ Uses the shunting-yard algorithm to translate expressions into RPN,
 then evaluates the output using a stack.
 
 ### TODO
-- [ ] Functions
+- [x] Basic trig functions
+- [ ] User defined functions
 - [ ] Strings
 - [ ] Variables
