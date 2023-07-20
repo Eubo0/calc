@@ -8,6 +8,7 @@
 #define IS_OPERATOR(type) (type >= TOK_ADD && type <= TOK_EXP)
 #define STACK_TOP(s) (s->base[s->size - 1])
 #define IS_NUMBER(t) (t->type == TOK_LONG || t->type == TOK_DOUBLE)
+#define IS_FUNCTION(type) (type >= TOK_SIN && type <= TOK_TAN)
 
 typedef enum {
     ASS_LEFT,
@@ -17,6 +18,11 @@ typedef enum {
 
 typedef enum {
     TOK_EOF,
+
+    /* Built in function... */
+    TOK_SIN,
+    TOK_COS,
+    TOK_TAN,
 
     /* Operators */
     TOK_ADD,
@@ -36,6 +42,8 @@ typedef enum {
     TOK_STRING,
     TOK_LONG,
     TOK_DOUBLE,
+    
+    TOK_IDENTIFIER,
 
     /* Might be useful... */
     TOK_COUNT
@@ -75,5 +83,8 @@ Token mul_tokens(Token* t1, Token* t2);
 Token div_tokens(Token* t1, Token* t2);
 Token mod_tokens(Token* t1, Token* t2);
 Token exp_tokens(Token* t1, Token* t2);
+Token sin_token(Token* t1);
+Token cos_token(Token* t1);
+Token tan_token(Token* t1);
 
 #endif

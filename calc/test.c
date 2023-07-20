@@ -95,6 +95,30 @@ int main(int argc, char* argv[]) {
                 push_token_stack(value_stack, &result);
                 break;
             }
+            case TOK_SIN: {
+                t1 = pop_token_stack(value_stack);
+
+                result = sin_token(&t1);
+
+                push_token_stack(value_stack, &result);
+                break;
+            }
+            case TOK_COS: {
+                t1 = pop_token_stack(value_stack);
+
+                result = cos_token(&t1);
+
+                push_token_stack(value_stack, &result);
+                break;
+            }
+            case TOK_TAN: {
+                t1 = pop_token_stack(value_stack);
+
+                result = tan_token(&t1);
+
+                push_token_stack(value_stack, &result);
+                break;
+            }
             default : {
                 fprintf(stderr, "Unimplemented instruction.\n");
                 exit(420);

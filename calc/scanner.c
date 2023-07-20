@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
 
@@ -10,12 +11,14 @@
 #define CUR_CHAR source[index]
 #define INITIAL_STRING_SIZE 64
 #define STRING_GROWTH_RATE 2
+#define MAX_ID_LENGTH 32
 
 void skip_whitespace();
 void next_char();
 void scan_number(Token* target);
 void scan_string(Token* target);
 void scan_identifier(Token* target);
+TokenType check_reserved(char* lexeme);
 
 /*
     NOTE: src should be appended with its own '\0' 
@@ -50,6 +53,10 @@ void next_token(Token* target)
         next_char();
 
         scan_string(target);
+
+    } else if (isalpha(CUR_CHAR) || CUR_CHAR == '_') {
+
+        scan_identifier(target);
 
     } else {
 
@@ -176,7 +183,35 @@ void scan_string(Token* target)
 
 void scan_identifier(Token* target)
 {
-    /* TODO: no keywords/identifiers yet... */
+    char lexeme[MAX_ID_LENGTH + 1];
+    uint8_t i;
+
+    /* TODO: should probably throw an error if ID_LENGTH is exceeded */
+    i = 0;
+    while (CUR_CHAR != '\0' && i < MAX_ID_LENGTH) {
+        if (isalnum(CUR_CHAR) || CUR_CHAR == '_') {
+            lexeme[i] = CUR_CHAR;
+        } else {
+            break;
+        }
+        i += 1;
+
+        /* You numbskull, don't forget to call next character at the end of the loop */
+        next_char();
+    }
+    lexeme[i] = '\0';
+
+    target->type = check_reserved(lexeme);
+    if (target->type != TOK_IDENTIFIER) {
+        return;
+    }
+
+    target->as.string = malloc(strlen(lexeme) + 1);
+    if (target->as.string == NULL) {
+        fprintf(stderr, "Identifier allocation failed...");
+        exit(11);
+    }
+    strncpy(target->as.string, lexeme, strlen(lexeme));
 }
 
 void cleanup_scanner()
@@ -200,4 +235,32 @@ void next_char()
     if (CUR_CHAR != '\0') {
         index += 1;
     }
+}
+
+typedef struct {
+    TokenType type;
+    char* id;
+} ReservedPair;
+
+ReservedPair reserved[] = {
+    {TOK_SIN, "sin"},
+    {TOK_COS, "cos"},
+    {TOK_TAN, "tan"},
+};
+
+
+/* Yes, this is linear search & no I'm not ashamed... */
+TokenType check_reserved(char* lexeme) {
+    uint32_t reserved_length;
+    uint32_t idx;
+    
+    reserved_length = sizeof(reserved) / sizeof(reserved[0]);
+
+    for (idx = 0; idx < reserved_length; idx++) {
+        if (strcmp(reserved[idx].id, lexeme) == 0) {
+            return reserved[idx].type;
+        }
+    }
+
+    return TOK_IDENTIFIER;
 }

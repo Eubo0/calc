@@ -43,10 +43,14 @@ void parse_expr()
         if (t.type == TOK_LONG || t.type == TOK_DOUBLE) {
 
             push_token_stack(output_stack, &t);
+        
+        } else if (t.type == TOK_IDENTIFIER || IS_FUNCTION(t.type)) {
+
+            push_token_stack(operator_stack, &t);
 
         } else if (IS_OPERATOR(t.type)) {
             /* TODO... */
-            while ((STACK_TOP(operator_stack).type != TOK_LPAR && operator_stack->size > 0)
+            while ((operator_stack->size > 0 && STACK_TOP(operator_stack).type != TOK_LPAR)
                 && (get_precedence(&STACK_TOP(operator_stack)) > get_precedence(&t) 
                     || (get_precedence(&STACK_TOP(operator_stack)) == get_precedence(&t) 
                         && get_associativity(&t) == ASS_LEFT)
@@ -60,6 +64,10 @@ void parse_expr()
 
         } else if (t.type == TOK_COMMA) {
             /* Unecessary until we implement functions... */
+            while (operator_stack->size > 0 && STACK_TOP(operator_stack).type != TOK_LPAR) {
+                temp = pop_token_stack(operator_stack);
+                push_token_stack(output_stack, &temp);
+            }
         } else if (t.type == TOK_LPAR) {
             
             push_token_stack(operator_stack, &t);
@@ -79,6 +87,11 @@ void parse_expr()
                 TODO: if there is a function on top of the operator stack, then
                 push it into the output queue...
             */
+
+            if (operator_stack->size > 0 && IS_FUNCTION(STACK_TOP(operator_stack).type)) {
+                temp = pop_token_stack(operator_stack);
+                push_token_stack(output_stack, &temp);
+            }
         } else {
 
                 printf("I'm confused :( '%d'\n", t.type);

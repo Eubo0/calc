@@ -10,6 +10,11 @@
 
 char* tok_to_string[] = {
     "EOF",
+
+    "sin",
+    "cos",
+    "tan",
+
     "+",
     "-",
     "*",
@@ -23,6 +28,8 @@ char* tok_to_string[] = {
 
     NULL,
     NULL,
+    NULL,
+
     NULL,
 
     NULL,
@@ -40,6 +47,7 @@ void print_token(Token* tok)
     }
 
     switch (tok->type) {
+        case TOK_IDENTIFIER:
         case TOK_STRING: {
             printf("%s\n", tok->as.string);
             break;
@@ -104,11 +112,12 @@ int get_associativity(Token* tok)
         }
     }
 }
-void print_token_stack(TokenStack* target);
+
 void scrub_token(Token* tok)
 {
     /* In case other tokens require custom free logic */
     switch (tok->type) {
+        case TOK_IDENTIFIER:
         case TOK_STRING: {
             free(tok->as.string);   
             break;
@@ -147,6 +156,11 @@ TokenStack* alloc_token_stack()
 
 void free_token_stack(TokenStack* target)
 {
+    uint64_t i;
+
+    for (i = 0; i < target->size; i++) {
+        scrub_token(&target->base[i]);
+    }
     free(target->base);
     free(target);
 }
@@ -505,6 +519,81 @@ Token exp_tokens(Token* t1, Token* t2)
     } else {
         fprintf(stderr, "Exponent unimplemented.\n");
         exit(9);
+    }
+
+    return output;
+}
+
+Token sin_token(Token* t1)
+{
+    Token output;
+
+    output.type = TOK_DOUBLE;
+
+    switch (t1->type) {
+        case TOK_LONG: {
+            output.as.f64 = sin(t1->as.i64);
+            break;
+        }
+        case TOK_DOUBLE: {
+            output.as.f64 = sin(t1->as.f64);
+            break;
+        }
+
+        default: {
+            fprintf(stderr, "'sin' unimplemented.\n");
+            exit(12);
+        }
+    }
+
+    return output;
+}
+
+Token cos_token(Token* t1)
+{
+    Token output;
+
+    output.type = TOK_DOUBLE;
+
+    switch (t1->type) {
+        case TOK_LONG: {
+            output.as.f64 = cos(t1->as.i64);
+            break;
+        }
+        case TOK_DOUBLE: {
+            output.as.f64 = cos(t1->as.f64);
+            break;
+        }
+
+        default: {
+            fprintf(stderr, "'cos' unimplemented.\n");
+            exit(13);
+        }
+    }
+
+    return output;
+}
+
+Token tan_token(Token* t1)
+{
+    Token output;
+
+    output.type = TOK_DOUBLE;
+
+    switch (t1->type) {
+        case TOK_LONG: {
+            output.as.f64 = tan(t1->as.i64);
+            break;
+        }
+        case TOK_DOUBLE: {
+            output.as.f64 = tan(t1->as.f64);
+            break;
+        }
+
+        default: {
+            fprintf(stderr, "'tan' unimplemented.\n");
+            exit(14);
+        }
     }
 
     return output;
